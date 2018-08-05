@@ -51,6 +51,6 @@ console.log($(".test"));
 Changelog
 ---------
 
-* 0.1.0 (Next)
+* 0.1.0 (Aug 5, 2018)
 
-  - Initial releast.
+  - Initial release.
