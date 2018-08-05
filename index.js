@@ -1,6 +1,3 @@
-// const fs = require("fs");
-// const path = require("path");
-
 const MagicString = require("magic-string");
 const {walk} = require("estree-walker");
 const {attachScopes} = require("rollup-pluginutils");
