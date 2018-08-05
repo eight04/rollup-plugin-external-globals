@@ -1,0 +1,44 @@
+{
+  "name": "rollup-plugin-external-globals",
+  "version": "0.0.0",
+  "description": "Transform external imports into global variables like output.globals.",
+  "keywords": [
+    "rollup-plugin",
+    "es",
+    "transform",
+    "external",
+    "globals"
+  ],
+  "main": "index.js",
+  "files": [
+    "lib"
+  ],
+  "eslintIgnore": [
+    "coverage"
+  ],
+  "scripts": {
+    "test": "eslint **/*.js --cache && nyc --reporter=html mocha",
+    "preversion": "npm test",
+    "postversion": "git push --follow-tags && npm publish"
+  },
+  "repository": "eight04/rollup-plugin-external-globals",
+  "author": "eight04 <eight04@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "endent": "^1.1.2",
+    "eslint": "^5.1.0",
+    "mocha": "^5.2.0",
+    "nyc": "^12.0.2",
+    "rollup": "^0.63.2",
+    "tempdir-yaml": "^0.2.1"
+  },
+  "dependencies": {
+    "estree-walker": "^0.5.2",
+    "is-reference": "^1.1.0",
+    "magic-string": "^0.25.0",
+    "rollup-pluginutils": "^2.3.0"
+  },
+  "peerDependencies": {
+    "rollup": ">=0.60"
+  }
+}
