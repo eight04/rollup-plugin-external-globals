@@ -48,6 +48,35 @@ into
 console.log($(".test"));
 ```
 
+API
+----
+
+This module exports a single function.
+
+### createPlugin
+
+```js
+const plugin = createPlugin(
+  globals: Object,
+  {
+    include?: Array,
+    exclude?: Array
+  } = {}
+);
+```
+
+`globals` is a `moduleId`/`variableName` map. For example, to map `jquery` module to `$`:
+
+```js
+{
+  jquery: "$"
+}
+```
+
+`include` is an array of glob patterns. If defined, only matched files would be transformed.
+
+`exclude` is an array of glob patterns. Matched files would not be transformed.
+
 Changelog
 ---------
 
