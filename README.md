@@ -80,6 +80,12 @@ const plugin = createPlugin(
 Changelog
 ---------
 
+* 0.2.0 (Sep 12, 2018)
+
+  - Change: use `transform` hook.
+  - Add: rewrite conflicted variable names.
+  - Add: handle export from.
+
 * 0.1.0 (Aug 5, 2018)
 
   - Initial release.
