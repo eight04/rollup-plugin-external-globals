@@ -71,4 +71,29 @@ describe("main", () => {
       `);
     })
   );
+  
+  it("scoped variable", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          {
+            console.log(foo);
+          }
+          {
+            const foo = "foo";
+            console.log(foo);
+          }
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      assert.equal(code.trim(), endent`
+        {
+          console.log(FOO);
+        }
+        {
+          const foo = "foo";
+          console.log(foo);
+        }
+      `);
+    })
+  );
 });
