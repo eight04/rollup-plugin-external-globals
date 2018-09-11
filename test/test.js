@@ -39,7 +39,24 @@ describe("main", () => {
           import foo from "foo";
           console.log(foo);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {
+        foo: "FOO"
+      });
+      assert.equal(code.trim(), endent`
+        console.log(FOO);
+      `);
+    })
+  );
+  
+  it("default no rewrite", () =>
+    withDir(`
+      - entry.js: |
+          import FOO from "foo";
+          console.log(FOO);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {
+        foo: "FOO"
+      });
       assert.equal(code.trim(), endent`
         console.log(FOO);
       `);
@@ -72,6 +89,21 @@ describe("main", () => {
     })
   );
   
+  it("object shorthand", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          console.log({foo});
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {
+        foo: "FOO"
+      });
+      assert.equal(code.trim(), endent`
+        console.log({foo: FOO});
+      `);
+    })
+  );
+  
   it("scoped variable", () =>
     withDir(`
       - entry.js: |
@@ -96,4 +128,68 @@ describe("main", () => {
       `);
     })
   );
+  
+  it("conflict", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          const FOO = 123;
+          console.log(foo, FOO);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      assert.equal(code.trim(), endent`
+        const _local_FOO = 123;
+        console.log(FOO, _local_FOO);
+      `);
+    })
+  );
+  
+  it("don't touch unused", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          import bar from "bar";
+          console.log(foo, bar);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      assert.equal(code.trim(), endent`
+        import bar from 'bar';
+        
+        console.log(FOO, bar);
+      `);
+    })
+  );
+  
+  it("export from", () =>
+    withDir(`
+      - entry.js: |
+          export {foo as bar} from "foo";
+          export {default as baz} from "bak";
+          export {default as BOO} from "boo";
+          export {mud} from "mud";
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {
+        foo: "FOO",
+        bak: "BAK",
+        boo: "BOO",
+        mud: "MUD"
+      });
+      assert.equal(code.trim(), endent`
+        const _global_FOO_foo = FOO.foo;
+        const _global_MUD_mud = MUD.mud;
+        
+        export { _global_FOO_foo as bar, BAK as baz, BOO, _global_MUD_mud as mud };
+      `);
+    })
+  );
+  
+  it("export from empty", () =>
+    withDir(`
+      - entry.js: |
+          export {} from "foo";
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      assert.equal(code.trim(), "");
+    })
+  );  
 });
