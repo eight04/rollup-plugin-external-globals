@@ -5,7 +5,7 @@ rollup-plugin-external-globals
 [![Coverage Status](https://coveralls.io/repos/github/eight04/rollup-plugin-external-globals/badge.svg?branch=master)](https://coveralls.io/github/eight04/rollup-plugin-external-globals?branch=master)
 [![install size](https://packagephobia.now.sh/badge?p=rollup-plugin-external-globals)](https://packagephobia.now.sh/result?p=rollup-plugin-external-globals)
 
-Transform external imports into global variables like `output.globals`.
+Transform external imports into global variables like Rollup's `output.globals` option. See [rollup/rollup#2374](https://github.com/rollup/rollup/issues/2374)
 
 Installation
 ------------
@@ -47,6 +47,35 @@ into
 ```js
 console.log($(".test"));
 ```
+
+API
+----
+
+This module exports a single function.
+
+### createPlugin
+
+```js
+const plugin = createPlugin(
+  globals: Object,
+  {
+    include?: Array,
+    exclude?: Array
+  } = {}
+);
+```
+
+`globals` is a `moduleId`/`variableName` map. For example, to map `jquery` module to `$`:
+
+```js
+{
+  jquery: "$"
+}
+```
+
+`include` is an array of glob patterns. If defined, only matched files would be transformed.
+
+`exclude` is an array of glob patterns. Matched files would not be transformed.
 
 Changelog
 ---------

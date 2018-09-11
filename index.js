@@ -1,6 +1,6 @@
 const MagicString = require("magic-string");
 const {walk} = require("estree-walker");
-const {attachScopes} = require("rollup-pluginutils");
+const {attachScopes, createFilter} = require("rollup-pluginutils");
 const isReference = require("is-reference");
 
 function extractBindings(code, bindings, node) {
@@ -23,20 +23,18 @@ function writeBinding(code, node, [bindingSource, bindingName], globals) {
   }
 }
 
-function createPlugin(globals) {
+function createPlugin(globals, {include, exclude} = {}) {
+  const filter = createFilter(include, exclude);
   return {
-    name: "rollup-plugin-cjs-es",
-    options,
-    transformChunk
+    name: "rollup-plugin-external-globals",
+    transform
   };
   
-  function options(options) {
-    options.external.push(...Object.keys(globals));
-    return options;
-  }
-  
-  function transformChunk(code, options, chunk) {
-    if (chunk.dependencies.every(m => !globals.hasOwnProperty(m.id))) {
+  function transform(code, id) {
+    if (!filter(id)) {
+      return;
+    }
+    if (Object.keys(globals).every(id => !code.includes(id))) {
       return;
     }
     const ast = this.parse(code);
@@ -47,6 +45,11 @@ function createPlugin(globals) {
       enter(node, parent) {
         if (node.scope) {
           scope = node.scope;
+          const skip = this.skip;
+          this.skip = () => {
+            skip.call(this);
+            leaveScope(node);
+          };
         }
         if (node.type === "ImportDeclaration" && globals.hasOwnProperty(node.source.value)) {
           extractBindings(code, bindings, node);
@@ -60,18 +63,17 @@ function createPlugin(globals) {
           writeBinding(code, node, bindings.get(node.name), globals);
         }
       },
-      leave(node) {
-        if (node.scope) {
-          // FIXME: this would break if someone called this.skip during enter().
-          scope = node.scope.parent;
-        }
-      }
+      leave: leaveScope
     });
-    if (bindings.size) {
-      return {
-        code: code.toString(),
-        map: code.generateMap()
-      };
+    return bindings.size ? {
+      code: code.toString(),
+      map: code.generateMap()
+    } : undefined;
+    
+    function leaveScope(node) {
+      if (node.scope) {
+        scope = node.scope.parent;
+      }
     }
   }
 }
