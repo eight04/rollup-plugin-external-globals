@@ -191,5 +191,24 @@ describe("main", () => {
       const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
       assert.equal(code.trim(), "");
     })
-  );  
+  );
+  
+  it("work in exported function", () =>
+    withDir(`
+      - entry.js: |
+          import * as _require_promise_ from "promise";
+          export default function () {
+            return _require_promise_;
+          }
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {promise: "Promise"});
+      assert.equal(code.trim(), endent`
+        function entry () {
+          return Promise;
+        }
+        
+        export default entry;
+      `);
+    })
+  );
 });
