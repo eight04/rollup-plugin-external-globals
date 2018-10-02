@@ -80,6 +80,10 @@ const plugin = createPlugin(
 Changelog
 ---------
 
+* 0.2.1 (Oct 2, 2018)
+
+  - Fix: don't skip export statement.
+
 * 0.2.0 (Sep 12, 2018)
 
   - Change: use `transform` hook.
