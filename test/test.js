@@ -28,6 +28,10 @@ async function bundle(file, globals, {plugins = []} = {}) {
     freeze: false,
     sourcemap: true
   });
+  // named output
+  for (const file of result.output) {
+    result.output[file.fileName] = file;
+  }
   result.warns = warns;
   result.modules = modules;
   return result;
