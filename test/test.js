@@ -165,25 +165,55 @@ describe("main", () => {
     })
   );
   
-  it("export from", () =>
+  it("export from name", () =>
     withDir(`
       - entry.js: |
           export {foo as bar} from "foo";
-          export {default as baz} from "bak";
-          export {default as BOO} from "boo";
           export {mud} from "mud";
     `, async resolve => {
       const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {
         foo: "FOO",
-        bak: "BAK",
-        boo: "BOO",
         mud: "MUD"
       });
       assert.equal(code.trim(), endent`
         const _global_FOO_foo = FOO.foo;
         const _global_MUD_mud = MUD.mud;
         
-        export { _global_FOO_foo as bar, BAK as baz, BOO, _global_MUD_mud as mud };
+        export { _global_FOO_foo as bar, _global_MUD_mud as mud };
+      `);
+    })
+  );
+  
+  it("export from name duplicated", () =>
+    withDir(`
+      - entry.js: |
+          export {foo as bar} from "foo";
+          export {foo as baz} from "foo";
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {
+        foo: "FOO"
+      });
+      assert.equal(code.trim(), endent`
+        const _global_FOO_foo = FOO.foo;
+        
+        export { _global_FOO_foo as bar, _global_FOO_foo as foo };
+      `);
+    })
+  );
+  
+  // https://github.com/acornjs/acorn/issues/806
+  xit("export from default", () =>
+    withDir(`
+      - entry.js: |
+          export {default as baz} from "bak";
+          export {default as BOO} from "boo";
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {
+        bak: "BAK",
+        boo: "BOO",
+      });
+      assert.equal(code.trim(), endent`
+        export { BAK as baz, BOO };
       `);
     })
   );
