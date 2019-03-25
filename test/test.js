@@ -196,7 +196,7 @@ describe("main", () => {
       assert.equal(code.trim(), endent`
         const _global_FOO_foo = FOO.foo;
         
-        export { _global_FOO_foo as bar, _global_FOO_foo as foo };
+        export { _global_FOO_foo as bar, _global_FOO_foo as baz };
       `);
     })
   );
