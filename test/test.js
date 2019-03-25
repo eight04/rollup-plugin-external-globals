@@ -7,11 +7,12 @@ const endent = require("endent");
 
 const createPlugin = require("..");
 
-async function bundle(file, globals) {
+async function bundle(file, globals, {plugins = []} = {}) {
   const warns = [];
   const bundle = await rollup.rollup({
     input: [file],
     plugins: [
+      ...plugins,
       createPlugin(globals)
     ],
     experimentalCodeSplitting: true,
@@ -208,6 +209,46 @@ describe("main", () => {
         }
         
         export default entry;
+      `);
+    })
+  );
+  
+  it("transform virtual modules", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          console.log(foo);
+    `, async resolve => {
+      let entryCode = "";
+      const {output: {"entry.js": {code}}} = await bundle(
+        resolve("entry.js"),
+        {
+          foo: "BAR"
+        },
+        {
+          plugins: [{
+            name: "test",
+            transform(code, id) {
+              if (id.endsWith("entry.js")) {
+                entryCode = code;
+                return "import '\0virtual';";
+              }
+            },
+            load(id) {
+              if (id === "\0virtual") {
+                return entryCode;
+              }
+            },
+            resolveId(importee) {
+              if (importee === "\0virtual") {
+                return importee;
+              }
+            }
+          }]
+        }
+      );
+      assert.equal(code.trim(), endent`
+        console.log(BAR);
       `);
     })
   );

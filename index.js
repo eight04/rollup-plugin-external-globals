@@ -11,7 +11,7 @@ function createPlugin(globals, {include, exclude} = {}) {
   };
   
   function transform(code, id) {
-    if (!filter(id)) {
+    if (id[0] !== "\0" && !filter(id)) {
       return;
     }
     if (Object.keys(globals).every(id => !code.includes(id))) {
