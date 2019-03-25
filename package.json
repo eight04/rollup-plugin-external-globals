@@ -29,7 +29,7 @@
     "eslint": "^5.15.3",
     "mocha": "^6.0.2",
     "nyc": "^13.3.0",
-    "rollup": "^0.63.2",
+    "rollup": "^1.7.3",
     "tempdir-yaml": "^0.2.1"
   },
   "dependencies": {
