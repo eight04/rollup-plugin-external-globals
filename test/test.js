@@ -228,6 +228,17 @@ describe("main", () => {
     })
   );
   
+  // https://github.com/eight04/rollup-plugin-external-globals/issues/11
+  it("export from others", () =>
+    withDir(`
+      - entry.js: |
+          export {foo} from "bar";
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      assert.equal(code.trim(), "export { foo } from 'bar';");
+    })
+  );
+  
   it("work in exported function", () =>
     withDir(`
       - entry.js: |

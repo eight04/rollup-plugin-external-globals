@@ -2,5 +2,4 @@ language: node_js
 node_js:
   - "node"
 after_success:
-  - nyc report --reporter=text-lcov > coverage.lcov
   - npx codecov
