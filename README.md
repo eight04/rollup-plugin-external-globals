@@ -84,6 +84,11 @@ Virtual modules are always transformed.
 Changelog
 ---------
 
+* 0.3.1 (Jun 6, 2019)
+
+  - Fix: all export-from statements are incorrectly transformed.
+  - Bump dependencies.
+
 * 0.3.0 (Mar 25, 2019)
 
   - Fix: temporary variable name conflicts.
