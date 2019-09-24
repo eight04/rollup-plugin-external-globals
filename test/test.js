@@ -165,6 +165,20 @@ describe("main", () => {
     })
   );
   
+  it("dynamic import", () =>
+    withDir(`
+      - entry.js: |
+          import("foo")
+            .then(console.log);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      assert.equal(code.trim(), endent`
+        Promise.resolve(FOO)
+          .then(console.log);
+      `);
+    })
+  );
+  
   it("export from name", () =>
     withDir(`
       - entry.js: |
