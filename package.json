@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-external-globals",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Transform external imports into global variables like output.globals.",
   "keywords": [
     "rollup-plugin",
