@@ -48,7 +48,26 @@ into
 console.log($(".test"));
 ```
 
-Note that this plugin only works with import/export syntax. If you are using a module loader transformer e.g. `rollup-plugin-commonjs`, you have to put this plugin *after* the transformer plugin.
+It also transforms dynamic import:
+
+```js
+import("jquery")
+  .then($ => {
+    $ = $.default || $;
+    console.log($(".test"));
+  });
+
+// transformed
+Promise.resolve($)
+  .then($ => {
+    $ = $.default || $;
+    console.log($(".test"));
+  });
+```
+
+> **Note:** when using dynamic import, you should notice that in ES module, the resolved object is aways a module namespace, but the global variable might be not.
+
+> **Note:** this plugin only works with import/export syntax. If you are using a module loader transformer e.g. `rollup-plugin-commonjs`, you have to put this plugin *after* the transformer plugin.
 
 API
 ----
@@ -83,6 +102,10 @@ Virtual modules are always transformed.
 
 Changelog
 ---------
+
+* 0.4.0 (Sep 24, 2019)
+
+  - Add: transform dynamic imports i.e. `import("foo")` => `Promise.resolve(FOO)`.
 
 * 0.3.1 (Jun 6, 2019)
 
