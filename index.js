@@ -3,7 +3,7 @@ const {createFilter} = require("rollup-pluginutils");
 
 const importToGlobals = require("./lib/import-to-globals");
 
-function createPlugin(globals, {include, exclude} = {}) {
+function createPlugin(globals, {include, exclude, dynamicWrapper} = {}) {
   const filter = createFilter(include, exclude);
   return {
     name: "rollup-plugin-external-globals",
@@ -34,7 +34,8 @@ function createPlugin(globals, {include, exclude} = {}) {
     const isTouched = importToGlobals({
       ast,
       code,
-      getName
+      getName,
+      dynamicWrapper
     });
     return isTouched ? {
       code: code.toString(),

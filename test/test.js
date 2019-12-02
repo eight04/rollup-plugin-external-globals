@@ -7,13 +7,13 @@ const endent = require("endent");
 
 const createPlugin = require("..");
 
-async function bundle(file, globals, {plugins = []} = {}) {
+async function bundle(file, globals, {plugins = []} = {}, options = {}) {
   const warns = [];
   const bundle = await rollup.rollup({
     input: [file],
     plugins: [
       ...plugins,
-      createPlugin(globals)
+      createPlugin(globals, options)
     ],
     experimentalCodeSplitting: true,
     onwarn(warn) {
@@ -187,6 +187,20 @@ describe("main", () => {
       const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
       assert.equal(code.trim(), endent`
         Promise.resolve(FOO)
+          .then(console.log);
+      `);
+    })
+  );
+
+  it("custom dynamic import", () =>
+    withDir(`
+      - entry.js: |
+          import("foo")
+            .then(console.log);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"}, void 0, {dynamicWrapper: "Promise.all"});
+      assert.equal(code.trim(), endent`
+        Promise.all(FOO)
           .then(console.log);
       `);
     })
