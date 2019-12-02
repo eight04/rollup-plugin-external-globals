@@ -78,10 +78,11 @@ This module exports a single function.
 
 ```js
 const plugin = createPlugin(
-  globals: Object,
+  globals: { [id: string]: string } | (id: string) => string,
   {
     include?: Array,
-    exclude?: Array
+    exclude?: Array,
+    dynamicWrapper?: String
   } = {}
 );
 ```
@@ -89,14 +90,26 @@ const plugin = createPlugin(
 `globals` is a `moduleId`/`variableName` map. For example, to map `jquery` module to `$`:
 
 ```js
-{
+const globals = {
   jquery: "$"
+}
+```
+
+or provide a function that takes the `moduleId` and returns the `variableName`.
+
+```js
+const globals = (id) => {
+  if (id === "jquery") {
+    return "$";
+  }
 }
 ```
 
 `include` is an array of glob patterns. If defined, only matched files would be transformed.
 
 `exclude` is an array of glob patterns. Matched files would not be transformed.
+
+`dynamicWrapper` is the name of the wrapper to use around dynamic imports. Defaults to "Promise.resolve".
 
 Virtual modules are always transformed.
 
