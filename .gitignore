@@ -2,4 +2,5 @@ node_modules
 coverage
 .nyc_output
 .eslintcache
+.idea
 *.tgz

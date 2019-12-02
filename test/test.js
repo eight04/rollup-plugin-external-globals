@@ -52,7 +52,20 @@ describe("main", () => {
       `);
     })
   );
-  
+
+  it("function", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          console.log(foo);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), id => id.toUpperCase());
+      assert.equal(code.trim(), endent`
+        console.log(FOO);
+      `);
+    })
+  );
+
   it("default no rewrite", () =>
     withDir(`
       - entry.js: |
@@ -67,7 +80,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("named", () =>
     withDir(`
       - entry.js: |
@@ -80,7 +93,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("named rename", () =>
     withDir(`
       - entry.js: |
@@ -93,7 +106,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("object shorthand", () =>
     withDir(`
       - entry.js: |
@@ -108,7 +121,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("scoped variable", () =>
     withDir(`
       - entry.js: |
@@ -133,7 +146,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("conflict", () =>
     withDir(`
       - entry.js: |
@@ -148,7 +161,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("don't touch unused", () =>
     withDir(`
       - entry.js: |
@@ -164,7 +177,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("dynamic import", () =>
     withDir(`
       - entry.js: |
@@ -178,7 +191,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("export from name", () =>
     withDir(`
       - entry.js: |
@@ -197,7 +210,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("export from name duplicated", () =>
     withDir(`
       - entry.js: |
@@ -214,7 +227,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   // https://github.com/acornjs/acorn/issues/806
   xit("export from default", () =>
     withDir(`
@@ -231,7 +244,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("export from empty", () =>
     withDir(`
       - entry.js: |
@@ -241,7 +254,7 @@ describe("main", () => {
       assert.equal(code.trim(), "");
     })
   );
-  
+
   // https://github.com/eight04/rollup-plugin-external-globals/issues/11
   it("export from others", () =>
     withDir(`
@@ -252,7 +265,7 @@ describe("main", () => {
       assert.equal(code.trim(), "export { foo } from 'bar';");
     })
   );
-  
+
   it("work in exported function", () =>
     withDir(`
       - entry.js: |
@@ -271,7 +284,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("transform virtual modules", () =>
     withDir(`
       - entry.js: |
