@@ -38,6 +38,49 @@ async function bundle(file, globals, {plugins = []} = {}, options = {}) {
 }
 
 describe("main", () => {
+  it("no globals", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          console.log(foo);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), null);
+      assert.equal(code.trim(), endent`
+        import foo from 'foo';
+        
+        console.log(foo);
+      `);
+    })
+  );
+
+  it("invalid globals", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          console.log(foo);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), 1);
+      assert.equal(code.trim(), endent`
+        import foo from 'foo';
+        
+        console.log(foo);
+      `);
+    })
+  );
+
+  it("function globals", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          console.log(foo);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), id => id.toUpperCase());
+      assert.equal(code.trim(), endent`
+        console.log(FOO);
+      `);
+    })
+  );
+
   it("default", () =>
     withDir(`
       - entry.js: |
@@ -47,19 +90,6 @@ describe("main", () => {
       const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {
         foo: "FOO"
       });
-      assert.equal(code.trim(), endent`
-        console.log(FOO);
-      `);
-    })
-  );
-
-  it("function", () =>
-    withDir(`
-      - entry.js: |
-          import foo from "foo";
-          console.log(foo);
-    `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), id => id.toUpperCase());
       assert.equal(code.trim(), endent`
         console.log(FOO);
       `);
