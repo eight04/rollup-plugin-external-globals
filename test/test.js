@@ -44,12 +44,10 @@ describe("main", () => {
           import foo from "foo";
           console.log(foo);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), null);
-      assert.equal(code.trim(), endent`
-        import foo from 'foo';
-        
-        console.log(foo);
-      `);
+      await assert.rejects(bundle(resolve("entry.js"), null), {
+        name: "TypeError",
+        message: /Missing/
+      });
     })
   );
 
@@ -59,12 +57,10 @@ describe("main", () => {
           import foo from "foo";
           console.log(foo);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), 1);
-      assert.equal(code.trim(), endent`
-        import foo from 'foo';
-        
-        console.log(foo);
-      `);
+      await assert.rejects(bundle(resolve("entry.js"), 1), {
+        name: "TypeError",
+        message: /Unexpected type/
+      });
     })
   );
 
@@ -228,11 +224,38 @@ describe("main", () => {
           import("foo")
             .then(console.log);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"}, void 0, {dynamicWrapper: "Promise.all"});
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"}, void 0, {dynamicWrapper: "Bluebird.resolve"});
       assert.equal(code.trim(), endent`
-        Promise.all(FOO)
+        Bluebird.resolve(FOO)
           .then(console.log);
       `);
+    })
+  );
+
+  it("custom dynamic import function", () =>
+    withDir(`
+      - entry.js: |
+          import("foo")
+            .then(console.log);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"}, void 0, {dynamicWrapper: (name) => `Promise.all([${name}, BAR])`});
+      assert.equal(code.trim(), endent`
+        Promise.all([FOO, BAR])
+          .then(console.log);
+      `);
+    })
+  );
+
+  it("invalid dynamic import", () =>
+    withDir(`
+      - entry.js: |
+          import("foo")
+            .then(console.log);
+    `, async resolve => {
+      await assert.rejects(bundle(resolve("entry.js"), {foo: "FOO"}, void 0, {dynamicWrapper: null}), {
+        name: "TypeError",
+        message: /Unexpected type/
+      });
     })
   );
 

@@ -78,11 +78,11 @@ This module exports a single function.
 
 ```js
 const plugin = createPlugin(
-  globals: { [id: string]: string } | (id: string) => string,
+  globals: Object | Function,
   {
     include?: Array,
     exclude?: Array,
-    dynamicWrapper?: String
+    dynamicWrapper?: String | Function
   } = {}
 );
 ```
@@ -109,7 +109,13 @@ const globals = (id) => {
 
 `exclude` is an array of glob patterns. Matched files would not be transformed.
 
-`dynamicWrapper` is the name of the wrapper to use around dynamic imports. Defaults to "Promise.resolve".
+`dynamicWrapper` is used to specify dynamic imports. Can be a string that's used as a wrapper around the `variableName` or a function that lets you express the entire wrapper yourself. Defaults to "Promise.resolve".
+
+```js
+const dynamicWrapper = (id) => {
+  return `Promise.resolve(${id})`;
+}
+```
 
 Virtual modules are always transformed.
 

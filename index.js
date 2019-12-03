@@ -3,7 +3,7 @@ const {createFilter} = require("rollup-pluginutils");
 
 const importToGlobals = require("./lib/import-to-globals");
 
-function createPlugin(globals, {include, exclude, dynamicWrapper} = {}) {
+function createPlugin(globals, {include, exclude, dynamicWrapper = "Promise.resolve"} = {}) {
   const filter = createFilter(include, exclude);
   return {
     name: "rollup-plugin-external-globals",
@@ -11,11 +11,17 @@ function createPlugin(globals, {include, exclude, dynamicWrapper} = {}) {
   };
 
   function transform(code, id) {
-    if (!globals || (id[0] !== "\0" && !filter(id))) {
+    if (!globals) {
+      throw new TypeError("Missing mandatory option 'globals'");
+    }
+    if ((id[0] !== "\0" && !filter(id))) {
       return;
     }
     let getName;
-    if (typeof globals === "object") {
+    const globalsType = typeof globals;
+    if (globalsType === "function") {
+      getName = globals;
+    } else if (globalsType === "object") {
       if (Object.keys(globals).every(id => !code.includes(id))) {
         return;
       }
@@ -24,10 +30,19 @@ function createPlugin(globals, {include, exclude, dynamicWrapper} = {}) {
           return globals[name];
         }
       };
-    } else if (globals instanceof Function) {
-      getName = globals;
     } else {
-      return false;
+      throw new TypeError(`Unexpected type of 'globals', got '${globalsType}'`);
+    }
+    let getDynamicWrapper;
+    const dynamicWrapperType = typeof dynamicWrapper;
+    if (dynamicWrapperType === "function") {
+      getDynamicWrapper = dynamicWrapper;
+    } else if (dynamicWrapperType === "string") {
+      getDynamicWrapper = function (name) {
+        return `${dynamicWrapper}(${name})`;
+      };
+    } else {
+      throw new TypeError(`Unexpected type of 'dynamicWrapper', got '${dynamicWrapperType}'`);
     }
     const ast = this.parse(code);
     code = new MagicString(code);
@@ -35,7 +50,7 @@ function createPlugin(globals, {include, exclude, dynamicWrapper} = {}) {
       ast,
       code,
       getName,
-      dynamicWrapper
+      getDynamicWrapper
     });
     return isTouched ? {
       code: code.toString(),
