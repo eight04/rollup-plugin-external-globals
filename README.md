@@ -82,7 +82,7 @@ const plugin = createPlugin(
   {
     include?: Array,
     exclude?: Array,
-    dynamicWrapper?: String
+    dynamicWrapper?: Function
   } = {}
 );
 ```
