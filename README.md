@@ -82,7 +82,7 @@ const plugin = createPlugin(
   {
     include?: Array,
     exclude?: Array,
-    dynamicWrapper?: String | Function
+    dynamicWrapper?: String
   } = {}
 );
 ```
@@ -109,7 +109,7 @@ const globals = (id) => {
 
 `exclude` is an array of glob patterns. Matched files would not be transformed.
 
-`dynamicWrapper` is used to specify dynamic imports. Can be a string that's used as a wrapper around the `variableName` or a function that lets you express the entire wrapper yourself. Defaults to "Promise.resolve".
+`dynamicWrapper` is used to specify dynamic imports. Below is the default.
 
 ```js
 const dynamicWrapper = (id) => {

@@ -2,12 +2,13 @@ const MagicString = require("magic-string");
 const {createFilter} = require("rollup-pluginutils");
 
 const importToGlobals = require("./lib/import-to-globals");
+const defaultDynamicWrapper = id => `Promise.resolve(${id})`;
 
-function createPlugin(globals, {include, exclude, dynamicWrapper = "Promise.resolve"} = {}) {
+function createPlugin(globals, {include, exclude, dynamicWrapper = defaultDynamicWrapper} = {}) {
   if (!globals) {
     throw new TypeError("Missing mandatory option 'globals'");
   }
-  let getName;
+  let getName = globals;
   const globalsType = typeof globals;
   const isGlobalsObj = globalsType === "object";
   if (isGlobalsObj) {
@@ -16,20 +17,11 @@ function createPlugin(globals, {include, exclude, dynamicWrapper = "Promise.reso
         return globals[name];
       }
     };
-  } else if (globalsType === "function") {
-    getName = globals;
-  } else {
+  } else if (globalsType !== "function") {
     throw new TypeError(`Unexpected type of 'globals', got '${globalsType}'`);
   }
-  let getDynamicWrapper;
   const dynamicWrapperType = typeof dynamicWrapper;
-  if (dynamicWrapperType === "function") {
-    getDynamicWrapper = dynamicWrapper;
-  } else if (dynamicWrapperType === "string") {
-    getDynamicWrapper = function (name) {
-      return `${dynamicWrapper}(${name})`;
-    };
-  } else {
+  if (dynamicWrapperType !== "function") {
     throw new TypeError(`Unexpected type of 'dynamicWrapper', got '${dynamicWrapperType}'`);
   }
   const filter = createFilter(include, exclude);
@@ -48,7 +40,7 @@ function createPlugin(globals, {include, exclude, dynamicWrapper = "Promise.reso
       ast,
       code,
       getName,
-      getDynamicWrapper
+      getDynamicWrapper: dynamicWrapper
     });
     return isTouched ? {
       code: code.toString(),

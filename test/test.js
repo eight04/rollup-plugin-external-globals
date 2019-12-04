@@ -64,11 +64,11 @@ describe("main", () => {
     })
   );
 
-  it("function globals", () =>
+  it("globals function", () =>
     withDir(`
       - entry.js: |
-          import foo from "foo";
-          console.log(foo);
+          import bar from "foo";
+          console.log(bar);
     `, async resolve => {
       const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), id => id.toUpperCase());
       assert.equal(code.trim(), endent`
@@ -224,23 +224,26 @@ describe("main", () => {
           import("foo")
             .then(console.log);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"}, void 0, {dynamicWrapper: "Bluebird.resolve"});
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"}, void 0, {dynamicWrapper: (name) => `Promise.all([${name}, BAR])`});
       assert.equal(code.trim(), endent`
-        Bluebird.resolve(FOO)
+        Promise.all([FOO, BAR])
           .then(console.log);
       `);
     })
   );
 
-  it("custom dynamic import function", () =>
+  it("falsy dynamic import", () =>
     withDir(`
       - entry.js: |
+          import bar from "foo";
+          console.log(bar);
           import("foo")
             .then(console.log);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"}, void 0, {dynamicWrapper: (name) => `Promise.all([${name}, BAR])`});
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"}, void 0, {dynamicWrapper: () => false});
       assert.equal(code.trim(), endent`
-        Promise.all([FOO, BAR])
+        console.log(FOO);
+        import('foo')
           .then(console.log);
       `);
     })
