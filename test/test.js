@@ -7,13 +7,13 @@ const endent = require("endent");
 
 const createPlugin = require("..");
 
-async function bundle(file, globals, {plugins = []} = {}) {
+async function bundle(file, globals, {plugins = []} = {}, options = {}) {
   const warns = [];
   const bundle = await rollup.rollup({
     input: [file],
     plugins: [
       ...plugins,
-      createPlugin(globals)
+      createPlugin(globals, options)
     ],
     experimentalCodeSplitting: true,
     onwarn(warn) {
@@ -38,6 +38,45 @@ async function bundle(file, globals, {plugins = []} = {}) {
 }
 
 describe("main", () => {
+  it("no globals", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          console.log(foo);
+    `, async resolve => {
+      await assert.rejects(bundle(resolve("entry.js"), null), {
+        name: "TypeError",
+        message: /Missing/
+      });
+    })
+  );
+
+  it("invalid globals", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          console.log(foo);
+    `, async resolve => {
+      await assert.rejects(bundle(resolve("entry.js"), 1), {
+        name: "TypeError",
+        message: /Unexpected type/
+      });
+    })
+  );
+
+  it("globals function", () =>
+    withDir(`
+      - entry.js: |
+          import bar from "foo";
+          console.log(bar);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), id => id.toUpperCase());
+      assert.equal(code.trim(), endent`
+        console.log(FOO);
+      `);
+    })
+  );
+
   it("default", () =>
     withDir(`
       - entry.js: |
@@ -52,7 +91,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("default no rewrite", () =>
     withDir(`
       - entry.js: |
@@ -67,7 +106,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("named", () =>
     withDir(`
       - entry.js: |
@@ -80,7 +119,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("named rename", () =>
     withDir(`
       - entry.js: |
@@ -93,7 +132,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("object shorthand", () =>
     withDir(`
       - entry.js: |
@@ -108,7 +147,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("scoped variable", () =>
     withDir(`
       - entry.js: |
@@ -133,7 +172,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("conflict", () =>
     withDir(`
       - entry.js: |
@@ -148,7 +187,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("don't touch unused", () =>
     withDir(`
       - entry.js: |
@@ -164,7 +203,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("dynamic import", () =>
     withDir(`
       - entry.js: |
@@ -178,7 +217,51 @@ describe("main", () => {
       `);
     })
   );
-  
+
+  it("custom dynamic import", () =>
+    withDir(`
+      - entry.js: |
+          import("foo")
+            .then(console.log);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"}, void 0, {dynamicWrapper: (name) => `Promise.all([${name}, BAR])`});
+      assert.equal(code.trim(), endent`
+        Promise.all([FOO, BAR])
+          .then(console.log);
+      `);
+    })
+  );
+
+  it("falsy dynamic import", () =>
+    withDir(`
+      - entry.js: |
+          import bar from "foo";
+          console.log(bar);
+          import("foo")
+            .then(console.log);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"}, void 0, {dynamicWrapper: () => false});
+      assert.equal(code.trim(), endent`
+        console.log(FOO);
+        import('foo')
+          .then(console.log);
+      `);
+    })
+  );
+
+  it("invalid dynamic import", () =>
+    withDir(`
+      - entry.js: |
+          import("foo")
+            .then(console.log);
+    `, async resolve => {
+      await assert.rejects(bundle(resolve("entry.js"), {foo: "FOO"}, void 0, {dynamicWrapper: null}), {
+        name: "TypeError",
+        message: /Unexpected type/
+      });
+    })
+  );
+
   it("export from name", () =>
     withDir(`
       - entry.js: |
@@ -197,7 +280,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("export from name duplicated", () =>
     withDir(`
       - entry.js: |
@@ -214,7 +297,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   // https://github.com/acornjs/acorn/issues/806
   xit("export from default", () =>
     withDir(`
@@ -231,7 +314,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("export from empty", () =>
     withDir(`
       - entry.js: |
@@ -241,7 +324,7 @@ describe("main", () => {
       assert.equal(code.trim(), "");
     })
   );
-  
+
   // https://github.com/eight04/rollup-plugin-external-globals/issues/11
   it("export from others", () =>
     withDir(`
@@ -252,7 +335,7 @@ describe("main", () => {
       assert.equal(code.trim(), "export { foo } from 'bar';");
     })
   );
-  
+
   it("work in exported function", () =>
     withDir(`
       - entry.js: |
@@ -271,7 +354,7 @@ describe("main", () => {
       `);
     })
   );
-  
+
   it("transform virtual modules", () =>
     withDir(`
       - entry.js: |
