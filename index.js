@@ -13,7 +13,7 @@ function createPlugin(globals, {include, exclude, dynamicWrapper = defaultDynami
   const isGlobalsObj = globalsType === "object";
   if (isGlobalsObj) {
     getName = function (name) {
-      if (globals.hasOwnProperty(name)) {
+      if (Object.prototype.hasOwnProperty.call(globals, name)) {
         return globals[name];
       }
     };
