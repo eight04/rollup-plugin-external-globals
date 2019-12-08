@@ -122,10 +122,11 @@ Virtual modules are always transformed.
 Changelog
 ---------
 
-* 0.4.1 (Dec 8, 2019)
+* 0.5.0 (Dec 8, 2019)
 
   - Add: `dynamicWrapper` option.
   - Add: now `globals` can be a function.
+  - Bump dependencies/peer dependencies.
 
 * 0.4.0 (Sep 24, 2019)
 
