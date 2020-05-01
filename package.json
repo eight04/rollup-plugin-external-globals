@@ -39,6 +39,6 @@
     "rollup-pluginutils": "^2.8.2"
   },
   "peerDependencies": {
-    "rollup": "^1.27.9"
+    "rollup": "^1.27.9||^2.0.0"
   }
 }
