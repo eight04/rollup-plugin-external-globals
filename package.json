@@ -29,7 +29,7 @@
     "endent": "^1.4.1",
     "eslint": "^6.8.0",
     "mocha": "^6.2.3",
-    "rollup": "^1.32.1",
+    "rollup": "^2.8.2",
     "tempdir-yaml": "^0.3.0"
   },
   "dependencies": {
@@ -39,6 +39,6 @@
     "rollup-pluginutils": "^2.8.2"
   },
   "peerDependencies": {
-    "rollup": "^1.32.1"
+    "rollup": "^1.32.1||^2.0.0"
   }
 }
