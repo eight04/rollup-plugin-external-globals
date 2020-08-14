@@ -3,7 +3,7 @@ const assert = require("assert");
 
 const rollup = require("rollup");
 const {withDir} = require("tempdir-yaml");
-const endent = require("endent");
+const {default: endent} = require("endent");
 
 const createPlugin = require("..");
 
