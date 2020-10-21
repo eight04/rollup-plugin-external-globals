@@ -122,6 +122,10 @@ Virtual modules are always transformed.
 Changelog
 ---------
 
+* 0.6.1 (Oct 21, 2020)
+
+  - Fix: add an extra assignment when exporting globals.
+
 * 0.6.0 (Aug 14, 2020)
 
   - **Breaking: bump to rollup@2.**
