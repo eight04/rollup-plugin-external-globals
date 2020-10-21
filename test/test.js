@@ -299,7 +299,7 @@ describe("main", () => {
   );
 
   // https://github.com/acornjs/acorn/issues/806
-  xit("export from default", () =>
+  it("export from default", () =>
     withDir(`
       - entry.js: |
           export {default as baz} from "bak";
@@ -310,7 +310,10 @@ describe("main", () => {
         boo: "BOO",
       });
       assert.equal(code.trim(), endent`
-        export { BAK as baz, BOO };
+        const _global_BAK = BAK;
+        const _global_BOO = BOO;
+      
+        export { _global_BOO as BOO, _global_BAK as baz };
       `);
     })
   );
