@@ -339,6 +339,56 @@ describe("main", () => {
     })
   );
 
+  it("need an extra assignment when exporting globals", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          
+          export {foo};
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      assert.equal(code.trim(), endent`
+        const _global_FOO = FOO;
+      
+        export { _global_FOO as foo };
+      `);
+    })
+  );
+
+  it("no duplicated assignment", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          
+          export {foo};
+          export {foo as bar};
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      assert.equal(code.trim(), endent`
+        const _global_FOO = FOO;
+      
+        export { _global_FOO as bar, _global_FOO as foo };
+      `);
+    })
+  );
+
+  it("don't affect normal references", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          console.log(foo);
+          export {foo};
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      assert.equal(code.trim(), endent`
+        console.log(FOO);
+        const _global_FOO = FOO;
+      
+        export { _global_FOO as foo };
+      `);
+    })
+  );
+
   it("work in exported function", () =>
     withDir(`
       - entry.js: |
