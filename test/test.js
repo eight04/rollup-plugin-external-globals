@@ -299,7 +299,7 @@ describe("main", () => {
   );
 
   // https://github.com/acornjs/acorn/issues/806
-  xit("export from default", () =>
+  it("export from default", () =>
     withDir(`
       - entry.js: |
           export {default as baz} from "bak";
@@ -310,7 +310,10 @@ describe("main", () => {
         boo: "BOO",
       });
       assert.equal(code.trim(), endent`
-        export { BAK as baz, BOO };
+        const _global_BAK = BAK;
+        const _global_BOO = BOO;
+      
+        export { _global_BOO as BOO, _global_BAK as baz };
       `);
     })
   );
@@ -333,6 +336,56 @@ describe("main", () => {
     `, async resolve => {
       const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
       assert.equal(code.trim(), "export { foo } from 'bar';");
+    })
+  );
+
+  it("need an extra assignment when exporting globals", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          
+          export {foo};
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      assert.equal(code.trim(), endent`
+        const _global_FOO = FOO;
+      
+        export { _global_FOO as foo };
+      `);
+    })
+  );
+
+  it("no duplicated assignment", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          
+          export {foo};
+          export {foo as bar};
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      assert.equal(code.trim(), endent`
+        const _global_FOO = FOO;
+      
+        export { _global_FOO as bar, _global_FOO as foo };
+      `);
+    })
+  );
+
+  it("don't affect normal references", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          console.log(foo);
+          export {foo};
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      assert.equal(code.trim(), endent`
+        console.log(FOO);
+        const _global_FOO = FOO;
+      
+        export { _global_FOO as foo };
+      `);
     })
   );
 
