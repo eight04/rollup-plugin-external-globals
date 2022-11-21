@@ -30,13 +30,13 @@ function createPlugin(globals, {include, exclude, dynamicWrapper = defaultDynami
     transform
   };
 
-  function transform(code, id) {
+  async function transform(code, id) {
     if ((id[0] !== "\0" && !filter(id)) || (isGlobalsObj && Object.keys(globals).every(id => !code.includes(id)))) {
       return;
     }
     const ast = this.parse(code);
     code = new MagicString(code);
-    const isTouched = importToGlobals({
+    const isTouched = await importToGlobals({
       ast,
       code,
       getName,

@@ -26,7 +26,7 @@ async function bundle(file, globals, {plugins = []} = {}, options = {}) {
     format: "es",
     legacy: true,
     freeze: false,
-    sourcemap: true
+    sourcemap: false
   });
   // named output
   for (const file of result.output) {
@@ -403,7 +403,7 @@ describe("main", () => {
           return Promise;
         }
         
-        export default entry;
+        export { entry as default };
       `);
     })
   );
