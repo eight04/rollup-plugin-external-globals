@@ -1,7 +1,7 @@
 rollup-plugin-external-globals
 ==============================
 
-[![Build Status](https://travis-ci.com/eight04/rollup-plugin-external-globals.svg?branch=master)](https://travis-ci.com/eight04/rollup-plugin-external-globals)
+[![test](https://github.com/eight04/rollup-plugin-external-globals/actions/workflows/test.yml/badge.svg)](https://github.com/eight04/rollup-plugin-external-globals/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/eight04/rollup-plugin-external-globals/branch/master/graph/badge.svg)](https://codecov.io/gh/eight04/rollup-plugin-external-globals)
 [![install size](https://packagephobia.now.sh/badge?p=rollup-plugin-external-globals)](https://packagephobia.now.sh/result?p=rollup-plugin-external-globals)
 
@@ -121,6 +121,10 @@ Virtual modules are always transformed.
 
 Changelog
 ---------
+
+* 0.7.0 (Nov 21, 2022)
+
+  - **Breaking: bump to rollup@3.**
 
 * 0.6.1 (Oct 21, 2020)
 
