@@ -25,18 +25,18 @@
   "author": "eight04 <eight04@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "c8": "^7.3.4",
-    "endent": "^2.0.1",
-    "eslint": "^7.11.0",
+    "c8": "^7.12.0",
+    "endent": "^2.1.0",
+    "eslint": "^8.28.0",
     "mocha": "^10.1.0",
-    "rollup": "^2.32.0",
+    "rollup": "^3.3.0",
     "tempdir-yaml": "^0.3.0"
   },
   "dependencies": {
-    "@rollup/pluginutils": "^4.0.0",
-    "estree-walker": "^2.0.1",
-    "is-reference": "^1.2.1",
-    "magic-string": "^0.25.7"
+    "@rollup/pluginutils": "^5.0.2",
+    "estree-walker": "^3.0.1",
+    "is-reference": "^3.0.0",
+    "magic-string": "^0.26.7"
   },
   "peerDependencies": {
     "rollup": "^2.25.0"
