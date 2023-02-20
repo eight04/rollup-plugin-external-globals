@@ -3,7 +3,7 @@ import type {Plugin} from 'rollup'
  * globals is a moduleId/variableName map
  * or provide a function that takes the moduleId and returns the variableName
  */
-type ModuleNameMap = Record<string, string> | ((id: string | number) => string)
+type ModuleNameMap = Record<string, string> | ((id: string) => string)
 
 type ExternalGlobalsOptions = {
   /**
@@ -15,9 +15,9 @@ type ExternalGlobalsOptions = {
    */
   exclude?: Array<string>
   /**
-   * [dynamicWrapper] is used to specify dynamic imports. Below is the default.
+   * [dynamicWrapper] is used to specify dynamic imports. It accepts a variable name and returns an expression
    */
-  dynamicWrapper?: ((id: string | number) => string)
+  dynamicWrapper?: ((variableName: string) => string)
 }
 
 export default function externalGlobals(globals: ModuleNameMap, options?: ExternalGlobalsOptions): Plugin
