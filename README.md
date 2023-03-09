@@ -122,6 +122,10 @@ Virtual modules are always transformed.
 Changelog
 ---------
 
+* 0.7.2 (mar 9, 2023)
+
+  - Add: typescript declaration.
+
 * 0.7.0 (Nov 21, 2022)
 
   - **Breaking: bump to rollup@3.**
