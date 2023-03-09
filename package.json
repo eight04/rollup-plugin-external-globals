@@ -11,7 +11,8 @@
   ],
   "main": "index.js",
   "files": [
-    "lib"
+    "lib",
+    "*.d.ts"
   ],
   "eslintIgnore": [
     "coverage"
