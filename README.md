@@ -122,6 +122,10 @@ Virtual modules are always transformed.
 Changelog
 ---------
 
+* 0.8.0 (May 12, 2023)
+
+  - Bump dependencies. Update to magic-string@0.30
+
 * 0.7.2 (mar 9, 2023)
 
   - Add: typescript declaration.
