@@ -122,6 +122,10 @@ Virtual modules are always transformed.
 Changelog
 ---------
 
+* 0.9.0 (Oct 28, 2023)
+
+  - **Breaking: bump to rollup@4.**
+
 * 0.8.0 (May 12, 2023)
 
   - Bump dependencies. Update to magic-string@0.30
