@@ -22,4 +22,6 @@ type ExternalGlobalsOptions = {
   dynamicWrapper?: ((variableName: VariableName) => string)
 }
 
-export default function externalGlobals(globals: ModuleNameMap, options?: ExternalGlobalsOptions): Plugin
+declare function externalGlobals(globals: ModuleNameMap, options?: ExternalGlobalsOptions): Plugin
+
+export = externalGlobals
