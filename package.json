@@ -26,15 +26,15 @@
   "author": "eight04 <eight04@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "c8": "^8.0.1",
+    "c8": "^9.1.0",
     "endent": "^2.1.0",
-    "eslint": "^8.52.0",
+    "eslint": "^8.56.0",
     "mocha": "^10.2.0",
-    "rollup": "^4.1.4",
+    "rollup": "^4.9.6",
     "tempdir-yaml": "^0.3.0"
   },
   "dependencies": {
-    "@rollup/pluginutils": "^5.0.5",
+    "@rollup/pluginutils": "^5.1.0",
     "estree-walker": "^3.0.3",
     "is-reference": "^3.0.2",
     "magic-string": "^0.30.5"
