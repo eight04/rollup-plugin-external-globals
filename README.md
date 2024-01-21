@@ -122,6 +122,10 @@ Virtual modules are always transformed.
 Changelog
 ---------
 
+* 0.9.2 (Jan 21, 2024)
+
+  - Fix: support rollup 4.9.6.
+
 * 0.9.1 (Nov 19, 2023)
 
   - Fix: type declaration.
