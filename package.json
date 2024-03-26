@@ -10,10 +10,12 @@
     "globals"
   ],
   "main": "index.js",
-  "types": "index.d.ts",
+  "typings": "index.d.ts",
   "exports": {
-    "types": "./index.d.ts",
-    "import": "./index.js"
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
   },
   "files": [
     "lib",
