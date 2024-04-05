@@ -122,6 +122,10 @@ Virtual modules are always transformed.
 Changelog
 ---------
 
+* 0.10.0 (Apr 5, 2024)
+
+  - Add: `exports` field in package.json to export typescript declaration.
+
 * 0.9.2 (Jan 21, 2024)
 
   - Fix: support rollup 4.9.6.
