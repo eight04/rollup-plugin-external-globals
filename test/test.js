@@ -273,8 +273,8 @@ describe("main", () => {
         mud: "MUD"
       });
       assert.equal(code.trim(), endent`
-        const _global_FOO_foo = FOO.foo;
-        const _global_MUD_mud = MUD.mud;
+        var _global_FOO_foo = FOO.foo;
+        var _global_MUD_mud = MUD.mud;
         
         export { _global_FOO_foo as bar, _global_MUD_mud as mud };
       `);
@@ -291,7 +291,7 @@ describe("main", () => {
         foo: "FOO"
       });
       assert.equal(code.trim(), endent`
-        const _global_FOO_foo = FOO.foo;
+        var _global_FOO_foo = FOO.foo;
         
         export { _global_FOO_foo as bar, _global_FOO_foo as baz };
       `);
@@ -310,8 +310,8 @@ describe("main", () => {
         boo: "BOO",
       });
       assert.equal(code.trim(), endent`
-        const _global_BAK = BAK;
-        const _global_BOO = BOO;
+        var _global_BAK = BAK;
+        var _global_BOO = BOO;
       
         export { _global_BOO as BOO, _global_BAK as baz };
       `);
@@ -348,7 +348,7 @@ describe("main", () => {
     `, async resolve => {
       const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
       assert.equal(code.trim(), endent`
-        const _global_FOO = FOO;
+        var _global_FOO = FOO;
       
         export { _global_FOO as foo };
       `);
@@ -365,7 +365,7 @@ describe("main", () => {
     `, async resolve => {
       const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
       assert.equal(code.trim(), endent`
-        const _global_FOO = FOO;
+        var _global_FOO = FOO;
       
         export { _global_FOO as bar, _global_FOO as foo };
       `);
@@ -382,7 +382,7 @@ describe("main", () => {
       const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
       assert.equal(code.trim(), endent`
         console.log(FOO);
-        const _global_FOO = FOO;
+        var _global_FOO = FOO;
       
         export { _global_FOO as foo };
       `);
