@@ -26,7 +26,7 @@ function createPlugin(globals, {include, exclude, dynamicWrapper = defaultDynami
   }
   const filter = createFilter(include, exclude);
 
-  let constBindings;
+  let constBindings = false;
 
   return {
     name: "rollup-plugin-external-globals",
@@ -34,8 +34,12 @@ function createPlugin(globals, {include, exclude, dynamicWrapper = defaultDynami
     transform
   };
 
+  // https://github.com/rollup/rollup/blob/master/CHANGELOG.md#300
+  // since rollup@3.0.0 support outputOptions.generatedCode.constBindings
   function renderStart(outputOptions) {
-    constBindings = outputOptions.generatedCode.constBindings;
+    if (outputOptions.generatedCode) {
+      constBindings = outputOptions.generatedCode.constBindings;
+    }
   }
 
   async function transform(code, id) {
