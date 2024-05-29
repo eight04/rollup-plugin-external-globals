@@ -25,10 +25,22 @@ function createPlugin(globals, {include, exclude, dynamicWrapper = defaultDynami
     throw new TypeError(`Unexpected type of 'dynamicWrapper', got '${dynamicWrapperType}'`);
   }
   const filter = createFilter(include, exclude);
+
+  let constBindings = false;
+
   return {
     name: "rollup-plugin-external-globals",
+    renderStart,
     transform
   };
+
+  // https://github.com/rollup/rollup/blob/master/CHANGELOG.md#300
+  // since rollup@3.0.0 support outputOptions.generatedCode.constBindings
+  function renderStart(outputOptions) {
+    if (outputOptions.generatedCode) {
+      constBindings = outputOptions.generatedCode.constBindings;
+    }
+  }
 
   async function transform(code, id) {
     if ((id[0] !== "\0" && !filter(id)) || (isGlobalsObj && Object.keys(globals).every(id => !code.includes(id)))) {
@@ -40,7 +52,8 @@ function createPlugin(globals, {include, exclude, dynamicWrapper = defaultDynami
       ast,
       code,
       getName,
-      getDynamicWrapper: dynamicWrapper
+      getDynamicWrapper: dynamicWrapper,
+      constBindings
     });
     return isTouched ? {
       code: code.toString(),
