@@ -7,7 +7,7 @@ const {default: endent} = require("endent");
 
 const createPlugin = require("..");
 
-async function bundle(file, globals, {plugins = []} = {}, options = {}) {
+async function bundle(file, globals, {plugins = []} = {}, options = {}, outputOptions = {}) {
   const warns = [];
   const bundle = await rollup.rollup({
     input: [file],
@@ -26,7 +26,8 @@ async function bundle(file, globals, {plugins = []} = {}, options = {}) {
     format: "es",
     legacy: true,
     freeze: false,
-    sourcemap: false
+    sourcemap: false,
+    ...outputOptions,
   });
   // named output
   for (const file of result.output) {
@@ -275,6 +276,70 @@ describe("main", () => {
       assert.equal(code.trim(), endent`
         var _global_FOO_foo = FOO.foo;
         var _global_MUD_mud = MUD.mud;
+        
+        export { _global_FOO_foo as bar, _global_MUD_mud as mud };
+      `);
+    })
+  );
+
+  it("export from name and use constBindings = true", () =>
+    withDir(`
+      - entry.js: |
+          export {foo as bar} from "foo";
+          export {mud} from "mud";
+    `, async resolve => {
+      const {
+        output: {
+          "entry.js": { code },
+        },
+      } = await bundle(
+        resolve("entry.js"),
+        {
+          foo: "FOO",
+          mud: "MUD",
+        },
+        void 0,
+        void 0,
+        {
+          generatedCode: {
+            constBindings: true
+          }
+        }
+      );
+      assert.equal(code.trim(), endent`
+        const _global_FOO_foo = FOO.foo;
+        const _global_MUD_mud = MUD.mud;
+        
+        export { _global_FOO_foo as bar, _global_MUD_mud as mud };
+      `);
+    })
+  );
+
+  it("export from name and use generatedCode = 'es2015'", () =>
+    withDir(`
+      - entry.js: |
+          export {foo as bar} from "foo";
+          export {mud} from "mud";
+    `, async resolve => {
+      const {
+        output: {
+          "entry.js": { code },
+        },
+      } = await bundle(
+        resolve("entry.js"),
+        {
+          foo: "FOO",
+          mud: "MUD",
+        },
+        void 0,
+        void 0,
+        {
+          generatedCode: "es2015"
+        }
+      );
+      assert.equal(code.trim(), endent`
+        const _global_FOO_foo = FOO.foo;
+        const _global_MUD_mud = MUD.mud;
         
         export { _global_FOO_foo as bar, _global_MUD_mud as mud };
       `);
