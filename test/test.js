@@ -1,4 +1,4 @@
-/* eslint-env mocha */
+/* global describe it */
 const assert = require("assert");
 
 const rollup = require("rollup");
