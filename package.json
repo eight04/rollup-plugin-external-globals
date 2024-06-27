@@ -29,7 +29,10 @@
     "preversion": "npm test",
     "postversion": "git push --follow-tags && npm publish"
   },
-  "repository": "eight04/rollup-plugin-external-globals",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eight04/rollup-plugin-external-globals.git"
+  },
   "author": "eight04 <eight04@gmail.com>",
   "license": "MIT",
   "devDependencies": {
