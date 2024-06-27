@@ -1,4 +1,4 @@
-/* eslint-env mocha */
+/* global describe it */
 const assert = require("assert");
 
 const rollup = require("rollup");
@@ -184,6 +184,41 @@ describe("main", () => {
       assert.equal(code.trim(), endent`
         const _local_FOO = 123;
         console.log(FOO, _local_FOO);
+      `);
+    })
+  );
+
+  it("conflict exported", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          export const FOO = 123;
+          console.log(foo, FOO);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      assert.equal(code.trim(), endent`
+        const _local_FOO = 123;
+        console.log(FOO, _local_FOO);
+        
+        export { _local_FOO as FOO };
+      `);
+    })
+  );
+
+  it("conflict exported 2", () =>
+    withDir(`
+      - entry.js: |
+          import foo from "foo";
+          const FOO = 123;
+          export {FOO};
+          console.log(foo, FOO);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      assert.equal(code.trim(), endent`
+        const _local_FOO = 123;
+        console.log(FOO, _local_FOO);
+
+        export { _local_FOO as FOO };
       `);
     })
   );
