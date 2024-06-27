@@ -122,6 +122,11 @@ Virtual modules are always transformed.
 Changelog
 ---------
 
+* 0.11.0 (Jun 27, 2024)
+
+  - Fix: local variable conflict in export declaration.
+  - Change: don't throw on parse error.
+
 * 0.10.0 (Apr 5, 2024)
 
   - Add: `exports` field in package.json to export typescript declaration.
