@@ -1,10 +1,17 @@
 const MagicString = require("magic-string");
-const {createFilter} = require("@rollup/pluginutils");
+const { createFilter } = require("@rollup/pluginutils");
 
 const importToGlobals = require("./lib/import-to-globals");
 const defaultDynamicWrapper = id => `Promise.resolve(${id})`;
 
-function createPlugin(globals, {include, exclude, dynamicWrapper = defaultDynamicWrapper} = {}) {
+
+function isVirtualModule(id) {
+  console.log(id);
+
+  return id.startsWith("\0");
+}
+
+function createPlugin(globals, { include, exclude, dynamicWrapper = defaultDynamicWrapper } = {}) {
   if (!globals) {
     throw new TypeError("Missing mandatory option 'globals'");
   }
@@ -24,14 +31,38 @@ function createPlugin(globals, {include, exclude, dynamicWrapper = defaultDynami
   if (dynamicWrapperType !== "function") {
     throw new TypeError(`Unexpected type of 'dynamicWrapper', got '${dynamicWrapperType}'`);
   }
+  const resolvedGlobalIdMap = new Map()
+  async function resolveId(importee, importer, options) {
+    const globalName = getName(importee)
+    if (globalName) {
+      const resolvedId = await this.resolve(importee, importer, options)
+      if (resolvedId.id && !isVirtualModule(resolvedId.id)) {
+        resolvedGlobalIdMap.set(globalName, resolvedId)
+      }
+    }
+    return null
+  }
   const filter = createFilter(include, exclude);
   return {
     name: "rollup-plugin-external-globals",
+    options,
     transform
   };
 
+  async function options(rawOptions) {
+    const plugins = Array.isArray(rawOptions.plugins)
+      ? [...rawOptions.plugins]
+      : rawOptions.plugins
+        ? [rawOptions.plugins]
+        : [];
+    plugins.unshift({
+      name: 'rollup-plugin-external-globals--resolver',
+      resolveId
+    });
+    return { ...rawOptions, plugins };
+  }
   async function transform(code, id) {
-    if ((id[0] !== "\0" && !filter(id)) || (isGlobalsObj && Object.keys(globals).every(id => !code.includes(id)))) {
+    if ((!isVirtualModule(id) && !filter(id)) || (isGlobalsObj && Object.keys(globals).every(id => !code.includes(id)))) {
       return;
     }
     let ast;

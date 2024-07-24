@@ -4,3 +4,4 @@ coverage
 .eslintcache
 .idea
 *.tgz
+pnpm-lock.yaml

@@ -4,6 +4,7 @@ const assert = require("assert");
 const rollup = require("rollup");
 const {withDir} = require("tempdir-yaml");
 const {default: endent} = require("endent");
+const commonjs = require("@rollup/plugin-commonjs");
 
 const createPlugin = require("..");
 
@@ -482,4 +483,68 @@ describe("main", () => {
       `);
     })
   );
+  it("transform commonjs", () =>
+    withDir(`
+      - node_modules:
+        - bar:
+          - index.js: | 
+              exports.default = "BAR";
+        - foo:
+          - index.js: | 
+              const bar = require("bar");
+              console.log('foo');
+              exports.default = () => console.log(bar);
+      - entry.js: |
+          import log from "foo";
+          log();
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(
+        resolve("entry.js"),
+        {
+          bar: "BAR"
+        },
+        {
+          plugins: [
+            commonjs({
+              defaultIsModuleExports: true
+            }),
+            {
+            name: "test",
+            transform(code, id) {
+              // console.log('------------------------------')
+              // console.log(id)
+              // console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv')
+  
+              // // console.log(code)
+              // // if (id.includes('foo')) {
+              // //   console.log(code)
+              // // }
+              // console.log('------------------------------')
+            },
+            resolveId(importee , importer , options) {
+              // console.log('------------------------------')
+              // console.log(importee)
+              // console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv')
+              // console.log(importer , options);
+
+              // console.log('------------------------------')
+     
+              
+
+              if(importee === 'foo') {
+                return resolve('node_modules/foo/index.js')
+              }
+              if(importee === 'bar') {
+                return resolve('node_modules/bar/index.js')
+              }
+            }
+          }]
+        }
+      );
+      assert.equal(code.trim(), endent`
+
+      `);
+    })
+  );
+
 });
