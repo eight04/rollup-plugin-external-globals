@@ -2,13 +2,13 @@
 const assert = require("assert");
 
 const rollup = require("rollup");
-const {withDir} = require("tempdir-yaml");
-const {default: endent} = require("endent");
+const { withDir } = require("tempdir-yaml");
+const { default: endent } = require("endent");
 const commonjs = require("@rollup/plugin-commonjs");
 
 const createPlugin = require("..");
 
-async function bundle(file, globals, {plugins = []} = {}, options = {}) {
+async function bundle(file, globals, { plugins = [] } = {}, options = {}) {
   const warns = [];
   const bundle = await rollup.rollup({
     input: [file],
@@ -71,7 +71,7 @@ describe("main", () => {
           import bar from "foo";
           console.log(bar);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), id => id.toUpperCase());
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), id => id.toUpperCase());
       assert.equal(code.trim(), endent`
         console.log(FOO);
       `);
@@ -84,7 +84,7 @@ describe("main", () => {
           import foo from "foo";
           console.log(foo);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), {
         foo: "FOO"
       });
       assert.equal(code.trim(), endent`
@@ -99,7 +99,7 @@ describe("main", () => {
           import FOO from "foo";
           console.log(FOO);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), {
         foo: "FOO"
       });
       assert.equal(code.trim(), endent`
@@ -114,7 +114,7 @@ describe("main", () => {
           import {bar} from "foo";
           console.log(bar);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), { foo: "FOO" });
       assert.equal(code.trim(), endent`
         console.log(FOO.bar);
       `);
@@ -127,7 +127,7 @@ describe("main", () => {
           import {bar as baz} from "foo";
           console.log(baz);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), { foo: "FOO" });
       assert.equal(code.trim(), endent`
         console.log(FOO.bar);
       `);
@@ -140,7 +140,7 @@ describe("main", () => {
           import foo from "foo";
           console.log({foo});
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), {
         foo: "FOO"
       });
       assert.equal(code.trim(), endent`
@@ -161,7 +161,7 @@ describe("main", () => {
             console.log(foo);
           }
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), { foo: "FOO" });
       assert.equal(code.trim(), endent`
         {
           console.log(FOO);
@@ -181,7 +181,7 @@ describe("main", () => {
           const FOO = 123;
           console.log(foo, FOO);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), { foo: "FOO" });
       assert.equal(code.trim(), endent`
         const _local_FOO = 123;
         console.log(FOO, _local_FOO);
@@ -196,7 +196,7 @@ describe("main", () => {
           export const FOO = 123;
           console.log(foo, FOO);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), { foo: "FOO" });
       assert.equal(code.trim(), endent`
         const _local_FOO = 123;
         console.log(FOO, _local_FOO);
@@ -214,7 +214,7 @@ describe("main", () => {
           export {FOO};
           console.log(foo, FOO);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), { foo: "FOO" });
       assert.equal(code.trim(), endent`
         const _local_FOO = 123;
         console.log(FOO, _local_FOO);
@@ -231,7 +231,7 @@ describe("main", () => {
           import bar from "bar";
           console.log(foo, bar);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), { foo: "FOO" });
       assert.equal(code.trim(), endent`
         import bar from 'bar';
         
@@ -246,7 +246,7 @@ describe("main", () => {
           import("foo")
             .then(console.log);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), { foo: "FOO" });
       assert.equal(code.trim(), endent`
         Promise.resolve(FOO)
           .then(console.log);
@@ -260,7 +260,7 @@ describe("main", () => {
           import("foo")
             .then(console.log);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"}, void 0, {dynamicWrapper: (name) => `Promise.all([${name}, BAR])`});
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), { foo: "FOO" }, void 0, { dynamicWrapper: (name) => `Promise.all([${name}, BAR])` });
       assert.equal(code.trim(), endent`
         Promise.all([FOO, BAR])
           .then(console.log);
@@ -276,7 +276,7 @@ describe("main", () => {
           import("foo")
             .then(console.log);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"}, void 0, {dynamicWrapper: () => false});
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), { foo: "FOO" }, void 0, { dynamicWrapper: () => false });
       assert.equal(code.trim(), endent`
         console.log(FOO);
         import('foo')
@@ -291,7 +291,7 @@ describe("main", () => {
           import("foo")
             .then(console.log);
     `, async resolve => {
-      await assert.rejects(bundle(resolve("entry.js"), {foo: "FOO"}, void 0, {dynamicWrapper: null}), {
+      await assert.rejects(bundle(resolve("entry.js"), { foo: "FOO" }, void 0, { dynamicWrapper: null }), {
         name: "TypeError",
         message: /Unexpected type/
       });
@@ -304,7 +304,7 @@ describe("main", () => {
           export {foo as bar} from "foo";
           export {mud} from "mud";
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), {
         foo: "FOO",
         mud: "MUD"
       });
@@ -323,7 +323,7 @@ describe("main", () => {
           export {foo as bar} from "foo";
           export {foo as baz} from "foo";
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), {
         foo: "FOO"
       });
       assert.equal(code.trim(), endent`
@@ -341,7 +341,7 @@ describe("main", () => {
           export {default as baz} from "bak";
           export {default as BOO} from "boo";
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), {
         bak: "BAK",
         boo: "BOO",
       });
@@ -359,7 +359,7 @@ describe("main", () => {
       - entry.js: |
           export {} from "foo";
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), { foo: "FOO" });
       assert.equal(code.trim(), "");
     })
   );
@@ -370,7 +370,7 @@ describe("main", () => {
       - entry.js: |
           export {foo} from "bar";
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), { foo: "FOO" });
       assert.equal(code.trim(), "export { foo } from 'bar';");
     })
   );
@@ -382,7 +382,7 @@ describe("main", () => {
           
           export {foo};
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), { foo: "FOO" });
       assert.equal(code.trim(), endent`
         const _global_FOO = FOO;
       
@@ -399,7 +399,7 @@ describe("main", () => {
           export {foo};
           export {foo as bar};
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), { foo: "FOO" });
       assert.equal(code.trim(), endent`
         const _global_FOO = FOO;
       
@@ -415,7 +415,7 @@ describe("main", () => {
           console.log(foo);
           export {foo};
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {foo: "FOO"});
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), { foo: "FOO" });
       assert.equal(code.trim(), endent`
         console.log(FOO);
         const _global_FOO = FOO;
@@ -433,7 +433,7 @@ describe("main", () => {
             return _require_promise_;
           }
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(resolve("entry.js"), {promise: "Promise"});
+      const { output: { "entry.js": { code } } } = await bundle(resolve("entry.js"), { promise: "Promise" });
       assert.equal(code.trim(), endent`
         function entry () {
           return Promise;
@@ -451,7 +451,7 @@ describe("main", () => {
           console.log(foo);
     `, async resolve => {
       let entryCode = "";
-      const {output: {"entry.js": {code}}} = await bundle(
+      const { output: { "entry.js": { code } } } = await bundle(
         resolve("entry.js"),
         {
           foo: "BAR"
@@ -483,22 +483,24 @@ describe("main", () => {
       `);
     })
   );
-  it("transform commonjs", () =>
+
+  it("transform cjs with default exports", () =>
     withDir(`
       - node_modules:
         - bar:
           - index.js: | 
-              exports.default = "BAR";
+              module.exports = "BAR";
         - foo:
           - index.js: | 
               const bar = require("bar");
               console.log('foo');
-              exports.default = () => console.log(bar);
+              module.exports = (val) => console.log(val || bar);
       - entry.js: |
           import log from "foo";
-          log();
+          import bar from "bar"
+          log(bar);
     `, async resolve => {
-      const {output: {"entry.js": {code}}} = await bundle(
+      const { output: { "entry.js": { code } } } = await bundle(
         resolve("entry.js"),
         {
           bar: "BAR"
@@ -509,42 +511,155 @@ describe("main", () => {
               defaultIsModuleExports: true
             }),
             {
-            name: "test",
-            transform(code, id) {
-              // console.log('------------------------------')
-              // console.log(id)
-              // console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv')
-  
-              // // console.log(code)
-              // // if (id.includes('foo')) {
-              // //   console.log(code)
-              // // }
-              // console.log('------------------------------')
-            },
-            resolveId(importee , importer , options) {
-              // console.log('------------------------------')
-              // console.log(importee)
-              // console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv')
-              // console.log(importer , options);
-
-              // console.log('------------------------------')
-     
-              
-
-              if(importee === 'foo') {
-                return resolve('node_modules/foo/index.js')
+              name: "test",
+              resolveId(importee) {
+                if (["foo", "bar"].includes(importee)) {
+                  return resolve(`node_modules/${importee}/index.js`)
+                }
               }
-              if(importee === 'bar') {
-                return resolve('node_modules/bar/index.js')
-              }
-            }
-          }]
+            }]
+        },
+        {
+          transformInCommonJs: true
         }
       );
       assert.equal(code.trim(), endent`
+        const bar = BAR;
+        console.log('foo');
+        var foo = (val) => console.log(val || bar);
 
+        foo(BAR);
       `);
     })
   );
 
+  it("transform cjs with named exports", () =>
+    withDir(`
+      - bar.js: |
+          module.a = "A";
+      - entry.js: |
+          const { a } = require("bar");
+          console.log(a);
+    `, async resolve => {
+      const { output: { "entry.js": { code } } } = await bundle(
+        resolve("entry.js"),
+        {
+          bar: "BAR"
+        },
+        {
+          plugins: [
+            commonjs({
+              defaultIsModuleExports: true
+            }),
+            {
+              name: "test",
+              resolveId(importee) {
+                if (["bar"].includes(importee)) {
+                  return resolve(`${importee}.js`)
+                }
+              }
+            }]
+        },
+        {
+          transformInCommonJs: true
+        }
+      );
+      assert.equal(code.trim(), endent`
+      var entry = {};
+      
+      const { a } = BAR;
+      console.log(a);
+      
+      export { entry as default };
+      `);
+    })
+  );
+
+  it("transform cjs require in function", () =>
+    withDir(`
+      - bar.js: |
+          module.a = "A";
+      - foo.js: |
+          const a = "A"
+          module.exports = (val) => {
+            const { a } = require("bar");
+            console.log(a);
+          }
+      - entry.js: |
+          import log from "foo";
+          import { a } from "bar";
+          log(a);
+    `, async resolve => {
+      const { output: { "entry.js": { code } } } = await bundle(
+        resolve("entry.js"),
+        {
+          bar: "BAR"
+        },
+        {
+          plugins: [
+            commonjs({
+              defaultIsModuleExports: true
+            }),
+            {
+              name: "test",
+              resolveId(importee) {
+                if (["foo", "bar"].includes(importee)) {
+                  return resolve(`${importee}.js`)
+                }
+              }
+            }]
+        },
+        {
+          transformInCommonJs: true
+        }
+      );
+      assert.equal(code.trim(), endent`
+      var foo = (val) => {
+        const { a } = BAR;
+        console.log(a);
+      };
+      
+      foo(BAR.a);
+      `);
+    })
+  );
+
+  it("untransform cjs require without transformInCommonJs", () =>
+    withDir(`
+      - bar.js: |
+          module.a = "A";
+      - entry.js: |
+          const { a } = require("bar");
+          console.log(a);
+    `, async resolve => {
+      const { output: { "entry.js": { code } } } = await bundle(
+        resolve("entry.js"),
+        {
+          bar: "BAR"
+        },
+        {
+          plugins: [
+            commonjs({
+              defaultIsModuleExports: true
+            }),
+            {
+              name: "test",
+              resolveId(importee) {
+                if (["bar"].includes(importee)) {
+                  return resolve(`${importee}.js`)
+                }
+              }
+            }]
+        },
+      );
+      assert.notEqual(code.trim(), endent`
+      var entry = {};
+      
+      const { a } = BAR;
+      console.log(a);
+      
+      export { entry as default };
+      `);
+    })
+  );
 });
