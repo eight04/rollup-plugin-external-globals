@@ -1,5 +1,5 @@
 const MagicString = require("magic-string");
-const { createFilter } = require("@rollup/pluginutils");
+const {createFilter} = require("@rollup/pluginutils");
 
 const importToGlobals = require("./lib/import-to-globals");
 const defaultDynamicWrapper = id => `Promise.resolve(${id})`;
@@ -8,7 +8,7 @@ function isVirtualModule(id) {
   return id.startsWith("\0");
 }
 
-function createPlugin(globals, { include, exclude, dynamicWrapper = defaultDynamicWrapper } = {}) {
+function createPlugin(globals, {include, exclude, dynamicWrapper = defaultDynamicWrapper} = {}) {
   if (!globals) {
     throw new TypeError("Missing mandatory option 'globals'");
   }
