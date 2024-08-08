@@ -2,10 +2,13 @@ const MagicString = require("magic-string");
 const { createFilter } = require("@rollup/pluginutils");
 
 const importToGlobals = require("./lib/import-to-globals");
-const { PROXY_SUFFIX, WRAPPED_SUFFIX, isVirtualModule, normaliseVirtualId } = require("./lib/helpers");
 const defaultDynamicWrapper = id => `Promise.resolve(${id})`;
 
-function createPlugin(globals, { include, exclude, dynamicWrapper = defaultDynamicWrapper, transformInCommonJs } = {}) {
+function isVirtualModule(id) {
+  return id.startsWith("\0");
+}
+
+function createPlugin(globals, { include, exclude, dynamicWrapper = defaultDynamicWrapper } = {}) {
   if (!globals) {
     throw new TypeError("Missing mandatory option 'globals'");
   }
@@ -25,29 +28,10 @@ function createPlugin(globals, { include, exclude, dynamicWrapper = defaultDynam
   if (dynamicWrapperType !== "function") {
     throw new TypeError(`Unexpected type of 'dynamicWrapper', got '${dynamicWrapperType}'`);
   }
-  const resolvedGlobalIdMap = new Map()
-  function getNameInternal(id) {
-    const name = getName(id);
-    if (name) return name;
-    if (id.endsWith(PROXY_SUFFIX) || id.endsWith(WRAPPED_SUFFIX)) {
-      return resolvedGlobalIdMap.get(normaliseVirtualId(id));
-    }
-  }
-  async function resolveId(importee, importer, options) {
-    if (!transformInCommonJs) return null
-    try {
-      const globalName = getName(importee)
-      if (globalName) {
-        const resolvedId = await this.resolve(importee, importer, options)
-        if (resolvedId.id && !isVirtualModule(resolvedId.id) && !resolvedId.external) {
-          resolvedGlobalIdMap.set(resolvedId.id, globalName)
-        }
-      }
-    } catch {
-      // ignore
-    }
-    return null
-
+  async function resolveId(importee, _, options) {
+    if (isVirtualModule(importee) || options.isEntry) return null;
+    const globalName = getName(importee)
+    return globalName ? false : null;
   }
   const filter = createFilter(include, exclude);
   return {
@@ -55,7 +39,6 @@ function createPlugin(globals, { include, exclude, dynamicWrapper = defaultDynam
     options,
     transform
   };
-
   async function options(rawOptions) {
     const plugins = Array.isArray(rawOptions.plugins)
       ? [...rawOptions.plugins]
@@ -86,7 +69,7 @@ function createPlugin(globals, { include, exclude, dynamicWrapper = defaultDynam
     const isTouched = await importToGlobals({
       ast,
       code,
-      getName: getNameInternal,
+      getName,
       getDynamicWrapper: dynamicWrapper
     });
     return isTouched ? {

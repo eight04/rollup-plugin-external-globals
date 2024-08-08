@@ -484,7 +484,7 @@ describe("main", () => {
     })
   );
 
-  it("transform cjs with default exports", () =>
+  it("require from default", () =>
     withDir(`
       - node_modules:
         - bar:
@@ -519,12 +519,11 @@ describe("main", () => {
               }
             }]
         },
-        {
-          transformInCommonJs: true
-        }
       );
       assert.equal(code.trim(), endent`
-        const bar = BAR;
+        const _global_BAR = BAR;
+
+        const bar = _global_BAR;
         console.log('foo');
         var foo = (val) => console.log(val || bar);
 
@@ -533,7 +532,7 @@ describe("main", () => {
     })
   );
 
-  it("transform cjs with named exports", () =>
+  it("require from named exports", () =>
     withDir(`
       - bar.js: |
           module.a = "A";
@@ -567,7 +566,9 @@ describe("main", () => {
       assert.equal(code.trim(), endent`
       var entry = {};
       
-      const { a } = BAR;
+      const _global_BAR = BAR;
+
+      const { a } = _global_BAR;
       console.log(a);
       
       export { entry as default };
@@ -575,7 +576,7 @@ describe("main", () => {
     })
   );
 
-  it("transform cjs require in function", () =>
+  it("require in function", () =>
     withDir(`
       - bar.js: |
           module.a = "A";
@@ -614,51 +615,14 @@ describe("main", () => {
         }
       );
       assert.equal(code.trim(), endent`
+      const _global_BAR = BAR;
+
       var foo = (val) => {
-        const { a } = BAR;
+        const { a } = _global_BAR;
         console.log(a);
       };
       
       foo(BAR.a);
-      `);
-    })
-  );
-
-  it("untransform cjs require without transformInCommonJs", () =>
-    withDir(`
-      - bar.js: |
-          module.a = "A";
-      - entry.js: |
-          const { a } = require("bar");
-          console.log(a);
-    `, async resolve => {
-      const { output: { "entry.js": { code } } } = await bundle(
-        resolve("entry.js"),
-        {
-          bar: "BAR"
-        },
-        {
-          plugins: [
-            commonjs({
-              defaultIsModuleExports: true
-            }),
-            {
-              name: "test",
-              resolveId(importee) {
-                if (["bar"].includes(importee)) {
-                  return resolve(`${importee}.js`)
-                }
-              }
-            }]
-        },
-      );
-      assert.notEqual(code.trim(), endent`
-      var entry = {};
-      
-      const { a } = BAR;
-      console.log(a);
-      
-      export { entry as default };
       `);
     })
   );
