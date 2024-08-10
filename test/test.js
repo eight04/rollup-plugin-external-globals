@@ -518,7 +518,7 @@ describe("main", () => {
                 }
               }
             }]
-        },
+        }
       );
       assert.equal(code.trim(), endent`
         const _global_BAR = BAR;
@@ -558,9 +558,6 @@ describe("main", () => {
                 }
               }
             }]
-        },
-        {
-          transformInCommonJs: true
         }
       );
       assert.equal(code.trim(), endent`
@@ -609,9 +606,6 @@ describe("main", () => {
                 }
               }
             }]
-        },
-        {
-          transformInCommonJs: true
         }
       );
       assert.equal(code.trim(), endent`
