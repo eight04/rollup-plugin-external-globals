@@ -125,6 +125,12 @@ Virtual modules are always transformed.
 Changelog
 ---------
 
+* 0.12.0 (Aug 11, 2024)
+
+  - Change: throw on export all declaration.
+  - Change: define variables with `var`, add `constBindings` option to use `const` instead.
+  - Change: resolve identifiers as external.
+
 * 0.11.0 (Jun 27, 2024)
 
   - Fix: local variable conflict in export declaration.
