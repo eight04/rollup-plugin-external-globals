@@ -82,7 +82,8 @@ const plugin = createPlugin(
   {
     include?: Array,
     exclude?: Array,
-    dynamicWrapper?: Function
+    dynamicWrapper?: Function,
+    constBindings?: Boolean
   } = {}
 );
 ```
@@ -118,6 +119,8 @@ const dynamicWrapper = (id) => {
 ```
 
 Virtual modules are always transformed.
+
+`constBindings` is a boolean. If true, the plugin will use `const` instead of `var` to declare the variable. This usually happens when you try to re-export the global variable.
 
 Changelog
 ---------

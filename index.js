@@ -8,7 +8,7 @@ function isVirtualModule(id) {
   return id.startsWith("\0");
 }
 
-function createPlugin(globals, {include, exclude, dynamicWrapper = defaultDynamicWrapper} = {}) {
+function createPlugin(globals, {include, exclude, dynamicWrapper = defaultDynamicWrapper, constBindings = false} = {}) {
   if (!globals) {
     throw new TypeError("Missing mandatory option 'globals'");
   }
@@ -70,7 +70,8 @@ function createPlugin(globals, {include, exclude, dynamicWrapper = defaultDynami
       ast,
       code,
       getName,
-      getDynamicWrapper: dynamicWrapper
+      getDynamicWrapper: dynamicWrapper,
+      constBindings
     });
     return isTouched ? {
       code: code.toString(),
