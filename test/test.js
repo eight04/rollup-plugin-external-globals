@@ -375,6 +375,17 @@ describe("main", () => {
     })
   );
 
+  it("export all", () =>
+    withDir(`
+      - entry.js: |
+          export * from "foo";
+    `, async resolve => {
+      await assert.rejects(bundle(resolve("entry.js"), {foo: "FOO"}), {
+        message: /Cannot export all/
+      });
+    })
+  );
+
   it("need an extra assignment when exporting globals", () =>
     withDir(`
       - entry.js: |
