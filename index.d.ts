@@ -24,7 +24,7 @@ export type ExternalGlobalsOptions = {
   dynamicWrapper?: (variableName: VariableName) => string;
 
   /**
-   * [constBindings] is used to decide whether to use `const` to declare variables.
+   * [constBindings] is used to decide whether to use `const` to declare variables. Default is `false`
    */
   constBindings?: boolean;
 };

@@ -120,7 +120,7 @@ const dynamicWrapper = (id) => {
 
 Virtual modules are always transformed.
 
-`constBindings` is a boolean. If true, the plugin will use `const` instead of `var` to declare the variable. This usually happens when you try to re-export the global variable.
+`constBindings` is a boolean. If true, the plugin will use `const` instead of `var` to declare the variable. This usually happens when you try to re-export the global variable. Default is false.
 
 Changelog
 ---------
