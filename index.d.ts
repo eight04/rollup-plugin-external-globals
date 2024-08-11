@@ -22,6 +22,11 @@ export type ExternalGlobalsOptions = {
    * [dynamicWrapper] is used to specify dynamic imports. It accepts a variable name and returns an expression
    */
   dynamicWrapper?: (variableName: VariableName) => string;
+
+  /**
+   * [constBindings] is used to decide whether to use `const` to declare variables. Default is `false`
+   */
+  constBindings?: boolean;
 };
 
 export declare function externalGlobals(
