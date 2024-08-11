@@ -36,6 +36,7 @@
   "author": "eight04 <eight04@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^26.0.1",
     "c8": "^10.1.2",
     "endent": "^2.1.0",
     "eslint": "^9.5.0",

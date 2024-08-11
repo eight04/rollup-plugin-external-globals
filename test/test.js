@@ -4,6 +4,7 @@ const assert = require("assert");
 const rollup = require("rollup");
 const {withDir} = require("tempdir-yaml");
 const {default: endent} = require("endent");
+const commonjs = require("@rollup/plugin-commonjs");
 
 const createPlugin = require("..");
 
@@ -479,6 +480,143 @@ describe("main", () => {
       );
       assert.equal(code.trim(), endent`
         console.log(BAR);
+      `);
+    })
+  );
+
+  it("require from default", () =>
+    withDir(`
+      - node_modules:
+        - bar:
+          - index.js: | 
+              module.exports = "BAR";
+        - foo:
+          - index.js: | 
+              const bar = require("bar");
+              console.log('foo');
+              module.exports = (val) => console.log(val || bar);
+      - entry.js: |
+          import log from "foo";
+          import bar from "bar"
+          log(bar);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(
+        resolve("entry.js"),
+        {
+          bar: "BAR"
+        },
+        {
+          plugins: [
+            commonjs({
+              defaultIsModuleExports: true
+            }),
+            {
+              name: "test",
+              resolveId(importee) {
+                if (["foo", "bar"].includes(importee)) {
+                  return resolve(`node_modules/${importee}/index.js`)
+                }
+              }
+            }]
+        }
+      );
+      assert.equal(code.trim(), endent`
+        const _global_BAR = BAR;
+
+        const bar = _global_BAR;
+        console.log('foo');
+        var foo = (val) => console.log(val || bar);
+
+        foo(BAR);
+      `);
+    })
+  );
+
+  it("require from named exports", () =>
+    withDir(`
+      - bar.js: |
+          module.a = "A";
+      - entry.js: |
+          const { a } = require("bar");
+          console.log(a);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(
+        resolve("entry.js"),
+        {
+          bar: "BAR"
+        },
+        {
+          plugins: [
+            commonjs({
+              defaultIsModuleExports: true
+            }),
+            {
+              name: "test",
+              resolveId(importee) {
+                if (["bar"].includes(importee)) {
+                  return resolve(`${importee}.js`)
+                }
+              }
+            }]
+        }
+      );
+      assert.equal(code.trim(), endent`
+      var entry = {};
+      
+      const _global_BAR = BAR;
+
+      const { a } = _global_BAR;
+      console.log(a);
+      
+      export { entry as default };
+      `);
+    })
+  );
+
+  it("require in function", () =>
+    withDir(`
+      - bar.js: |
+          module.a = "A";
+      - foo.js: |
+          const a = "A"
+          module.exports = (val) => {
+            const { a } = require("bar");
+            console.log(a);
+          }
+      - entry.js: |
+          import log from "foo";
+          import { a } from "bar";
+          log(a);
+    `, async resolve => {
+      const {output: {"entry.js": {code}}} = await bundle(
+        resolve("entry.js"),
+        {
+          bar: "BAR"
+        },
+        {
+          plugins: [
+            commonjs({
+              defaultIsModuleExports: true
+            }),
+            {
+              name: "test",
+              resolveId(importee) {
+                if (["foo", "bar"].includes(importee)) {
+                  return resolve(`${importee}.js`)
+                }
+              }
+            }]
+        }
+      );
+      assert.equal(code.trim(), endent`
+      const _global_BAR = BAR;
+
+      var foo = (val) => {
+        const { a } = _global_BAR;
+        console.log(a);
+      };
+      
+      foo(BAR.a);
       `);
     })
   );
