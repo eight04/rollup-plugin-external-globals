@@ -1,4 +1,5 @@
-import type { Plugin } from "rollup";
+import type { Plugin } from 'rollup';
+import type { FilterPattern } from '@rollup/pluginutils';
 
 export type VariableName = string;
 /**
@@ -11,13 +12,13 @@ export type ModuleNameMap =
 
 export type ExternalGlobalsOptions = {
   /**
-   * [include] is an array of glob patterns. If defined, only matched files would be transformed.
+   * [include] is a valid `picomatch` glob pattern, or array of patterns. If defined, only matched files would be transformed.
    */
-  include?: Array<string>;
+  include?: FilterPattern;
   /**
-   * [exclude] is an array of glob patterns. Matched files would not be transformed.
+   * [exclude] is a valid `picomatch` glob pattern, or array of patterns. Matched files would not be transformed.
    */
-  exclude?: Array<string>;
+  exclude?: FilterPattern;
   /**
    * [dynamicWrapper] is used to specify dynamic imports. It accepts a variable name and returns an expression
    */
