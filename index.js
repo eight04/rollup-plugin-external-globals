@@ -37,8 +37,20 @@ function createPlugin(globals, {include, exclude, dynamicWrapper = defaultDynami
   return {
     name: "rollup-plugin-external-globals",
     options,
-    transform
+    transform,
   };
+  function getDebug(context) {
+    return (err, message) => {
+      if (context.debug) {
+        context.debug({
+          message,
+          cause: err
+        });
+      } else if (context.warn) {
+        context.warn(message, err.loc ?? err.pos ?? null);
+      }
+    };
+  }
   async function options(rawOptions) {
     const plugins = Array.isArray(rawOptions.plugins)
       ? [...rawOptions.plugins]
@@ -59,10 +71,7 @@ function createPlugin(globals, {include, exclude, dynamicWrapper = defaultDynami
     try {
       ast = this.parse(code);
     } catch (err) {
-      this.debug({
-        message: `Failed to parse code, skip ${id}`,
-        cause: err
-      });
+      getDebug(this)(err, `Failed to parse code, skip ${id}`);
       return;
     }
     code = new MagicString(code);
