@@ -550,11 +550,21 @@ describe("main", () => {
       assert.equal(code.trim(), endent`
         var _global_BAR = BAR;
 
-        const bar = _global_BAR;
-        console.log('foo');
-        var foo = (val) => console.log(val || bar);
+        var foo;
+        var hasRequiredFoo;
 
-        foo(BAR);
+        function requireFoo () {
+        \tif (hasRequiredFoo) return foo;
+        \thasRequiredFoo = 1;
+        \tconst bar = _global_BAR;
+        \tconsole.log('foo');
+        \tfoo = (val) => console.log(val || bar);
+        \treturn foo;
+        }
+
+        var fooExports = requireFoo();
+
+        fooExports(BAR);
       `);
     })
   );
@@ -592,10 +602,19 @@ describe("main", () => {
       
       var _global_BAR = BAR;
 
-      const { a } = _global_BAR;
-      console.log(a);
-      
-      export { entry as default };
+      var hasRequiredEntry;
+
+      function requireEntry () {
+      \tif (hasRequiredEntry) return entry;
+      \thasRequiredEntry = 1;
+      \tconst { a } = _global_BAR;
+      \tconsole.log(a);
+      \treturn entry;
+      }
+
+      var entryExports = requireEntry();
+
+      export { entryExports as default };
       `);
     })
   );
@@ -638,12 +657,22 @@ describe("main", () => {
       assert.equal(code.trim(), endent`
       var _global_BAR = BAR;
 
-      var foo = (val) => {
-        const { a } = _global_BAR;
-        console.log(a);
-      };
+      var foo;
+      var hasRequiredFoo;
+
+      function requireFoo () {
+      \tif (hasRequiredFoo) return foo;
+      \thasRequiredFoo = 1;
+      \tfoo = (val) => {
+      \t  const { a } = _global_BAR;
+      \t  console.log(a);
+      \t};
+      \treturn foo;
+      }
+
+      var fooExports = requireFoo();
       
-      foo(BAR.a);
+      fooExports(BAR.a);
       `);
     })
   );
