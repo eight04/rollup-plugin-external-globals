@@ -125,6 +125,10 @@ Virtual modules are always transformed.
 Changelog
 ---------
 
+* 0.12.1 (Nov 15, 2024)
+
+  - Fix: there is no debug hook in rollup 2.
+
 * 0.12.0 (Aug 11, 2024)
 
   - Change: throw on export all declaration.
