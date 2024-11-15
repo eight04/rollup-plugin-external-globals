@@ -9,13 +9,14 @@ const commonjs = require("@rollup/plugin-commonjs");
 
 const createPlugin = require("..");
 
-async function _bundle(rollup, file, globals, {plugins = []} = {}, options = {}) {
+async function _bundle(rollup, file, globals, {plugins = [], postPlugins = []} = {}, options = {}) {
   const warns = [];
   const bundle = await rollup.rollup({
     input: [file],
     plugins: [
       ...plugins,
-      createPlugin(globals, options)
+      createPlugin(globals, options),
+      ...postPlugins
     ],
     experimentalCodeSplitting: true,
     onwarn(warn) {
@@ -676,6 +677,36 @@ for (const r of [rollup, rollup2]) {
         var fooExports = requireFoo();
         
         fooExports(BAR.a);
+        `);
+      })
+    );
+
+    it("ignore non js files", () =>
+      withDir(`
+        - entry.txt: |
+            hello bar
+      `, async resolve => {
+        const {output: {"entry.js": {code}}} = await bundle(
+          resolve("entry.txt"),
+          {
+            bar: "BAR"
+          },
+          {
+            postPlugins: [
+              {
+                name: "test",
+                transform(code, id) {
+                  if (id.endsWith(".txt")) {
+                    return `export default ${JSON.stringify(code.trim())}`;
+                  }
+                }
+              }]
+          }
+        );
+        assert.equal(code.trim(), endent`
+        var entry = "hello bar";
+
+        export { entry as default };
         `);
       })
     );
