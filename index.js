@@ -18,8 +18,18 @@ function createPlugin(globals, {include, exclude, dynamicWrapper = defaultDynami
   if (isGlobalsObj) {
     getName = function (name) {
       if (Object.prototype.hasOwnProperty.call(globals, name)) {
+        if(!globals[name]){
+          throw new TypeError("Missing mandatory option 'globals'");
+        }
+        else if(globals[name] instanceof Object&&Object.keys(globals[name]).length === 0){
+          throw new TypeError("Missing mandatory option 'globals'");
+        }
         return globals[name];
       }
+      else if(Object.keys(globals).length === 0){
+        throw new TypeError("Missing mandatory option 'globals'");
+      }
+      
     };
   } else if (globalsType !== "function") {
     throw new TypeError(`Unexpected type of 'globals', got '${globalsType}'`);

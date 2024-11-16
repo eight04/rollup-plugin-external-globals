@@ -14,7 +14,7 @@ Installation
 npm install -D rollup-plugin-external-globals
 ```
 
-Usage
+Usage 1
 -----
 
 ```js
@@ -69,6 +69,65 @@ Promise.resolve($)
 
 > **Note:** this plugin only works with import/export syntax. If you are using a module loader transformer e.g. `rollup-plugin-commonjs`, you have to put this plugin *after* the transformer plugin.
 
+Usage 2
+-----
+```js
+import externalGlobals from "rollup-plugin-external-globals";
+
+export default {
+  input: ["entry.js"],
+  output: {
+    dir: "dist",
+    format: "es"
+  },
+  plugins: [
+    externalGlobals({
+      jquery: {
+        name: "$",
+        esmUrl: "https://cdn.jsdelivr.net/npm/jquery@3.7.1/+esm"
+      }
+    })
+  ]
+};
+```
+
+The above config transforms
+
+```js
+import jq from "jquery";
+
+console.log(jq(".test"));
+```
+
+into
+
+```js
+import $ from "https://cdn.jsdelivr.net/npm/jquery@3.7.1/+esm";
+
+console.log($(".test"));
+```
+
+It also transforms dynamic import:
+
+```js
+import("jquery")
+  .then($ => {
+    $ = $.default || $;
+    console.log($(".test"));
+  });
+
+// transformed
+import("https://cdn.jsdelivr.net/npm/jquery@3.7.1/+esm")
+  .then($ => {
+    $ = $.default || $;
+    console.log($(".test"));
+  });
+```
+
+> **Note:** when using dynamic import, you should notice that in ES module, the resolved object is aways a module namespace, but the global variable might be not.
+
+> **Note:** this plugin only works with import/export syntax. If you are using a module loader transformer e.g. `rollup-plugin-commonjs`, you have to put this plugin *after* the transformer plugin.
+
 API
 ----
 
@@ -78,7 +137,7 @@ This module exports a single function.
 
 ```js
 const plugin = createPlugin(
-  globals: Object | Function,
+  globals: Object | Function | {name: String, esmUrl?: String},
   {
     include?: Array,
     exclude?: Array,
@@ -93,6 +152,17 @@ const plugin = createPlugin(
 ```js
 const globals = {
   jquery: "$"
+}
+```
+
+or `globals` is a `moduleId`/`variableName and (ESM)CDN URL` map,`(ESM)CDN URL` is optional. For example, to map `jquery` module to `{name: "$", esmUrl: "https://cdn.jsdelivr.net/npm/jquery@3.7.1/+esm"}`:
+
+```js
+const globals = {
+  jquery: {
+    name: "$",
+    esmUrl: "https://cdn.jsdelivr.net/npm/jquery@3.7.1/+esm"
+    }
 }
 ```
 
@@ -124,6 +194,9 @@ Virtual modules are always transformed.
 
 Changelog
 ---------
+* 0.12.2 (Nov 17, 2024)
+
+  - Add: CDN import module function (only supports ESM modules).
 
 * 0.12.1 (Nov 15, 2024)
 

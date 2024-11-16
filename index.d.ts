@@ -1,12 +1,23 @@
 import type { Plugin } from "rollup";
 
 export type VariableName = string;
+
+export type ModuleConfig = {
+  /**
+   * [name] is the global name of the module
+   */
+  name:string;
+  /**
+   * [esmUrl] is the CDN URL for the ESM version of the module
+   */
+  esmUrl?:string;
+};
 /**
- * globals is a moduleId/variableName map
+ * globals is a moduleId/variableName or moduleId/variableName and (ESM)CDN URL map
  * or provide a function that takes the moduleId and returns the variableName
  */
 export type ModuleNameMap =
-  | Record<string, string>
+  | Record<string, string|ModuleConfig>
   | ((id: string) => VariableName);
 
 export type ExternalGlobalsOptions = {
