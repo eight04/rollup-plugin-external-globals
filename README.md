@@ -80,8 +80,8 @@ This module exports a single function.
 const plugin = createPlugin(
   globals: Object | Function,
   {
-    include?: Array,
-    exclude?: Array,
+    include?: ReadonlyArray<string | RegExp> | string | RegExp | null,
+    exclude?: ReadonlyArray<string | RegExp> | string | RegExp | null,
     dynamicWrapper?: Function,
     constBindings?: Boolean
   } = {}
@@ -106,9 +106,9 @@ const globals = (id) => {
 }
 ```
 
-`include` is an array of glob patterns. If defined, only matched files would be transformed.
+`include` is a valid `picomatch` glob pattern, or array of patterns. If defined, only matched files would be transformed.
 
-`exclude` is an array of glob patterns. Matched files would not be transformed.
+`exclude` is a valid `picomatch` glob pattern, or array of patterns. Matched files would not be transformed.
 
 `dynamicWrapper` is used to specify dynamic imports. Below is the default.
 
