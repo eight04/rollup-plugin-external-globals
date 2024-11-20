@@ -125,6 +125,10 @@ Virtual modules are always transformed.
 Changelog
 ---------
 
+* 0.13.0 (Nov 20, 2024)
+
+  - Change: update include/exclude signature
+
 * 0.12.1 (Nov 15, 2024)
 
   - Fix: there is no debug hook in rollup 2.
